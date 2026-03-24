@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "name": "GemPurchaseEvent",
+  "namespace": "lootstream.events",
+  "fields": [
+    { "name": "event_id", "type": "string", "doc": "UUID v4" },
+    { "name": "event_timestamp", "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "player_id", "type": "string" },
+    { "name": "session_id", "type": "string" },
+    { "name": "platform", "type": { "type": "enum", "name": "Platform", "symbols": ["IOS", "ANDROID", "PC"] } },
+    { "name": "app_version", "type": "string" },
+    { "name": "gem_package_id", "type": "string" },
+    { "name": "gem_amount", "type": "int" },
+    { "name": "usd_price", "type": "float" },
+    { "name": "payment_method", "type": { "type": "enum", "name": "PaymentMethod", "symbols": ["APPLE_IAP", "GOOGLE_PLAY", "CREDIT_CARD", "PAYPAL"] } },
+    { "name": "is_first_purchase", "type": "boolean" },
+    { "name": "promotion_id", "type": ["null", "string"], "default": null }
+  ]
+}

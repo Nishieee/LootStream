@@ -1,0 +1,20 @@
+{
+  "type": "record",
+  "name": "CardUpgradeEvent",
+  "namespace": "lootstream.events",
+  "fields": [
+    { "name": "event_id", "type": "string", "doc": "UUID v4" },
+    { "name": "event_timestamp", "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "player_id", "type": "string" },
+    { "name": "session_id", "type": "string" },
+    { "name": "platform", "type": { "type": "enum", "name": "Platform", "symbols": ["IOS", "ANDROID", "PC"] } },
+    { "name": "app_version", "type": "string" },
+    { "name": "card_id", "type": "string" },
+    { "name": "card_rarity", "type": { "type": "enum", "name": "CardRarity", "symbols": ["COMMON", "RARE", "EPIC", "LEGENDARY", "CHAMPION"] } },
+    { "name": "previous_level", "type": "int" },
+    { "name": "new_level", "type": "int" },
+    { "name": "gold_cost", "type": "int" },
+    { "name": "cards_consumed", "type": "int" },
+    { "name": "upgrade_source", "type": { "type": "enum", "name": "UpgradeSource", "symbols": ["MANUAL", "AUTO_UPGRADE", "MAGIC_ITEM"] } }
+  ]
+}

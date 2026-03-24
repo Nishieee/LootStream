@@ -1,0 +1,24 @@
+{
+  "type": "record",
+  "name": "PlayerTradeEvent",
+  "namespace": "lootstream.events",
+  "fields": [
+    { "name": "event_id", "type": "string", "doc": "UUID v4" },
+    { "name": "event_timestamp", "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "player_id", "type": "string" },
+    { "name": "session_id", "type": "string" },
+    { "name": "platform", "type": { "type": "enum", "name": "Platform", "symbols": ["IOS", "ANDROID", "PC"] } },
+    { "name": "app_version", "type": "string" },
+    { "name": "trade_id", "type": "string" },
+    { "name": "trade_type", "type": { "type": "enum", "name": "TradeType", "symbols": ["CLAN_TRADE", "GLOBAL_TRADE"] } },
+    { "name": "offered_card_id", "type": "string" },
+    { "name": "offered_card_rarity", "type": { "type": "enum", "name": "CardRarity", "symbols": ["COMMON", "RARE", "EPIC", "LEGENDARY", "CHAMPION"] } },
+    { "name": "offered_card_quantity", "type": "int" },
+    { "name": "requested_card_id", "type": "string" },
+    { "name": "requested_card_rarity", "type": "CardRarity" },
+    { "name": "requested_card_quantity", "type": "int" },
+    { "name": "trade_status", "type": { "type": "enum", "name": "TradeStatus", "symbols": ["POSTED", "COMPLETED", "CANCELLED", "EXPIRED"] } },
+    { "name": "counterparty_player_id", "type": ["null", "string"], "default": null },
+    { "name": "trade_token_used", "type": "boolean" }
+  ]
+}

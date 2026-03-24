@@ -1,0 +1,34 @@
+{
+  "type": "record",
+  "name": "ChestOpeningEvent",
+  "namespace": "lootstream.events",
+  "fields": [
+    { "name": "event_id", "type": "string", "doc": "UUID v4" },
+    { "name": "event_timestamp", "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "player_id", "type": "string" },
+    { "name": "session_id", "type": "string" },
+    { "name": "platform", "type": { "type": "enum", "name": "Platform", "symbols": ["IOS", "ANDROID", "PC"] } },
+    { "name": "app_version", "type": "string" },
+    { "name": "chest_type", "type": { "type": "enum", "name": "ChestType", "symbols": ["SILVER", "GOLD", "GIANT", "MAGICAL", "LEGENDARY", "MEGA_LIGHTNING", "ROYAL_WILD"] } },
+    { "name": "chest_source", "type": { "type": "enum", "name": "ChestSource", "symbols": ["BATTLE_REWARD", "SHOP_PURCHASE", "CHALLENGE_REWARD", "PASS_ROYALE", "CLAN_WAR"] } },
+    {
+      "name": "cards_received",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "CardDrop",
+          "fields": [
+            { "name": "card_id", "type": "string" },
+            { "name": "card_rarity", "type": { "type": "enum", "name": "CardRarity", "symbols": ["COMMON", "RARE", "EPIC", "LEGENDARY", "CHAMPION"] } },
+            { "name": "quantity", "type": "int" }
+          ]
+        }
+      }
+    },
+    { "name": "gold_received", "type": "int" },
+    { "name": "gems_received", "type": "int" },
+    { "name": "contained_legendary", "type": "boolean" },
+    { "name": "queue_position", "type": ["null", "int"], "default": null }
+  ]
+}

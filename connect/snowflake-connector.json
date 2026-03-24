@@ -1,0 +1,26 @@
+{
+  "name": "lootstream-snowflake-sink",
+  "config": {
+    "connector.class": "com.snowflake.kafka.connector.SnowflakeSinkConnector",
+    "tasks.max": "4",
+    "topics": "game.events.gem_purchases,game.events.card_upgrades,game.events.chest_openings,game.events.player_trades",
+    "snowflake.url.name": "${SNOWFLAKE_ACCOUNT_URL}",
+    "snowflake.user.name": "${SNOWFLAKE_USER}",
+    "snowflake.role.name": "${SNOWFLAKE_ROLE}",
+    "snowflake.private.key": "${SNOWFLAKE_PRIVATE_KEY_CONTENT}",
+    "snowflake.database.name": "${SNOWFLAKE_DATABASE}",
+    "snowflake.schema.name": "${SNOWFLAKE_SCHEMA}",
+    "snowflake.warehouse.name": "${SNOWFLAKE_WAREHOUSE}",
+    "snowflake.ingestion.method": "SNOWPIPE_STREAMING",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "snowflake.topic2table.map": "game.events.gem_purchases:RAW_GEM_PURCHASES,game.events.card_upgrades:RAW_CARD_UPGRADES,game.events.chest_openings:RAW_CHEST_OPENINGS,game.events.player_trades:RAW_PLAYER_TRADES",
+    "buffer.flush.time": "10",
+    "buffer.count.records": "1000",
+    "errors.tolerance": "all",
+    "errors.deadletterqueue.topic.name": "game.events.dlq",
+    "errors.deadletterqueue.topic.replication.factor": 1,
+    "errors.deadletterqueue.context.headers.enable": true
+  }
+}
