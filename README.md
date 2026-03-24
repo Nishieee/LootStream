@@ -1,4 +1,5 @@
 # LootStream
+A real-time analytics platform that simulates a freemium mobile game economy — tracking player spending, card upgrades, chest drops, and trades — and automatically transforms raw event data into business metrics like revenue per user, player retention, lifetime value, and in-game economy health.
 
 Synthetic game economy events are generated in Python, written to Kafka as Avro, and streamed into Snowflake landing tables via Kafka Connect (Snowpipe Streaming). Docker runs Kafka, Schema Registry, and Connect locally.
 
