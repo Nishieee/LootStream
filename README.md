@@ -5,7 +5,10 @@ It is built as a learning/demo setup to show how game events can be generated an
 
 ## What each file does (one line each)
 
-- `docker/docker-compose.yml` - Starts the local services used by this project.
+- `docker/docker-compose.yml` - Starts local services including Kafka, Schema Registry, and Kafka Connect.
+- `connect/Dockerfile` - Builds a Kafka Connect image with the Snowflake connector installed.
+- `connect/snowflake-connector.json` - Template config used to deploy the Snowflake sink connector.
+- `connect/keys/rsa_key.p8` - Local Snowflake private key file used by the deploy script.
 - `simulator/__init__.py` - Marks `simulator` as a Python package.
 - `simulator/config.py` - Loads app settings from environment variables.
 - `simulator/models/__init__.py` - Marks `models` as a Python package.
@@ -25,17 +28,41 @@ It is built as a learning/demo setup to show how game events can be generated an
 - `schemas/chest_opening.avsc` - Schema for chest opening events.
 - `schemas/player_trade.avsc` - Schema for player trade events.
 - `scripts/create_topics.sh` - Creates required Kafka topics.
+- `scripts/deploy-connector.sh` - Deploys/updates the Snowflake connector via Kafka Connect REST API.
+- `scripts/connector-status.sh` - Shows connector status and related consumer lag.
 - `requirements.txt` - Lists Python dependencies.
-- `.env` - Contains local runtime configuration values.
+- `.env` - Contains local runtime and Snowflake connector settings.
 - `.gitignore` - Lists files/folders Git should ignore.
 - `README.md` - Project overview and quick file guide.
 
-## Quick start
+## Phase 2 smoke test
 
 ```bash
-cd docker && docker compose up -d
-sleep 30
-bash ../scripts/create_topics.sh
-pip install -r requirements.txt
+# 1. Copy your private key into the connect/keys directory
+mkdir -p connect/keys
+cp ~/lootstream/keys/rsa_key.p8 connect/keys/
+
+# 2. Start all services (including Kafka Connect)
+cd docker && docker compose up -d --build
+
+# 3. Wait for Kafka Connect to be ready (takes ~60 seconds)
+echo "Waiting for Kafka Connect..."
+while ! curl -s http://localhost:8083/connectors > /dev/null 2>&1; do sleep 5; done
+echo "Kafka Connect is ready"
+
+# 4. Create topics (if not already created)
+cd ..
+bash scripts/create_topics.sh
+
+# 5. Deploy the Snowflake connector
+bash scripts/deploy-connector.sh
+
+# 6. Check connector status
+bash scripts/connector-status.sh
+
+# 7. Start the simulator
 python -m simulator.main --players 1000 --eps 50
+
+# 8. Check Snowflake (in Snowsight worksheet):
+# SELECT COUNT(*) FROM LOOTSTREAM.RAW.RAW_GEM_PURCHASES;
 ```
