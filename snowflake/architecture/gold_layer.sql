@@ -54,7 +54,7 @@ LEFT JOIN daily_revenue r ON d.activity_date = r.revenue_date
 ORDER BY d.activity_date;
 
 
--- Gold: retention cohorts (D1, D7, D30)
+-- Gold: retention cohorts (D1, D7, D10, D30)
 
 CREATE OR REPLACE DYNAMIC TABLE ANALYTICS.GOLD_RETENTION_COHORTS
   TARGET_LAG = '10 minutes'
@@ -91,11 +91,14 @@ SELECT
   COUNT(DISTINCT player_id)                                                        AS cohort_size,
   COUNT(DISTINCT CASE WHEN days_since_first = 1 THEN player_id END)                AS retained_d1,
   COUNT(DISTINCT CASE WHEN days_since_first = 7 THEN player_id END)                AS retained_d7,
+  COUNT(DISTINCT CASE WHEN days_since_first = 10 THEN player_id END)               AS retained_d10,
   COUNT(DISTINCT CASE WHEN days_since_first = 30 THEN player_id END)               AS retained_d30,
   ROUND(COUNT(DISTINCT CASE WHEN days_since_first = 1 THEN player_id END)::FLOAT
     / NULLIF(COUNT(DISTINCT player_id), 0) * 100, 2)                               AS d1_retention_pct,
   ROUND(COUNT(DISTINCT CASE WHEN days_since_first = 7 THEN player_id END)::FLOAT
     / NULLIF(COUNT(DISTINCT player_id), 0) * 100, 2)                               AS d7_retention_pct,
+  ROUND(COUNT(DISTINCT CASE WHEN days_since_first = 10 THEN player_id END)::FLOAT
+    / NULLIF(COUNT(DISTINCT player_id), 0) * 100, 2)                               AS d10_retention_pct,
   ROUND(COUNT(DISTINCT CASE WHEN days_since_first = 30 THEN player_id END)::FLOAT
     / NULLIF(COUNT(DISTINCT player_id), 0) * 100, 2)                               AS d30_retention_pct
 FROM retention_base

@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import logging
+import random
 from pathlib import Path
 from queue import Queue
+from datetime import datetime, timedelta, timezone
 
 from confluent_kafka import KafkaError
 from confluent_kafka.avro import CachedSchemaRegistryClient, loads
@@ -41,6 +43,42 @@ class EventProducer:
         self._schema_cache = self._load_and_register_schemas(schema_registry)
         self.delivery_failures: Queue[str] = Queue()
 
+        # Synthetic timestamps so cohort retention (D1/D7/D10) shows overlap
+        # even when the simulator runs for a short real-time window.
+        self._synthetic_base_datetime = datetime.now(timezone.utc).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        self._join_day_window_days = 14
+        # Relative day offsets for a single player across their generated events.
+        # seq=0 => cohort day (D0), seq=1 => D1, seq=2 => D7, seq=3 => D10, seq>=4 repeats.
+        self._retention_day_offsets: list[int] = [0, 1, 7, 10, 30]
+        self._player_event_seq: dict[str, int] = {}
+        self._player_join_day_offset: dict[str, int] = {}
+
+    def _join_day_offset_days(self, player_id: str) -> int:
+        if player_id not in self._player_join_day_offset:
+            self._player_join_day_offset[player_id] = abs(hash(player_id)) % self._join_day_window_days
+        return self._player_join_day_offset[player_id]
+
+    def _event_day_offset_days(self, player_id: str) -> int:
+        seq = self._player_event_seq.get(player_id, 0)
+        self._player_event_seq[player_id] = seq + 1
+        if seq < len(self._retention_day_offsets):
+            return self._retention_day_offsets[seq]
+        return random.choice(self._retention_day_offsets)
+
+    def _apply_synthetic_timestamp(self, event) -> None:
+        # retention is computed on DATE(event_timestamp), so only the day matters
+        # (we still add a random second for realism).
+        player_id = event.player_id
+        join_offset_days = self._join_day_offset_days(player_id)
+        event_offset_days = self._event_day_offset_days(player_id)
+        synthetic_dt = (
+            self._synthetic_base_datetime
+            + timedelta(days=join_offset_days + event_offset_days, seconds=random.randint(0, 86_399))
+        )
+        event.event_timestamp = int(synthetic_dt.timestamp() * 1000)
+
     def _load_and_register_schemas(self, schema_registry: CachedSchemaRegistryClient) -> dict[str, object]:
         schema_dir = Path(__file__).resolve().parent.parent / "schemas"
         schema_map: dict[str, object] = {}
@@ -65,6 +103,7 @@ class EventProducer:
 
     def produce(self, topic: str, event) -> None:
         try:
+            self._apply_synthetic_timestamp(event)
             self.producer.produce(
                 topic=topic,
                 key=event.to_kafka_key().decode("utf-8"),
