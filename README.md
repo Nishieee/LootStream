@@ -148,8 +148,7 @@ bash scripts/connector-status.sh
 SELECT COUNT(*) FROM LOOTSTREAM.RAW.RAW_GEM_PURCHASES;
 ```
 
+
 ## Dashboard
-
 ![LootStream dashboard overview](dashboard/landing_page_overview.png)
-
 ![LootStream in-game economy](dashboard/ingame_economy.png)
